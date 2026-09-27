@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raja Laundry - Kasir</title>
+<style>
+  /* ===== RESET & VARIABEL DASAR (ringan, tanpa font eksternal) ===== */
+  :root{
+    --primary:#68a69e;
+    --primary-dark:#4d827c;
+    --primary-light:#89c2b8;
+    --navy:#153e5c;
+    --gold:#f9c63b;
+    --orange:#f28e2b;
+    --bg:#d3eaf2;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --border:#d9dedc;
+    --mint:#e3f7f3;
+    --success:#16a34a;
+    --success-bg:#e8f7ec;
+    --danger:#dc2626;
+    --danger-bg:#fdecec;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:linear-gradient(180deg,#e9f8f5 0%,var(--bg) 220px);
+    color:var(--text);
+    font-size:16px;
+    line-height:1.4;
+  }
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+  }
+  /* ===== HEADER ===== */
+  .topbar{
+    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+    color:#fff;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    position:sticky;
+    top:0;
+    z-index:10;
+    border-bottom:3px solid var(--gold);
+    border-radius:0 0 16px 16px;
+  }
+  .topbar h1{font-size:17px;margin:0;font-weight:700;flex:1;letter-spacing:.2px;}
+  .btn-back{
+    background:rgba(255,255,255,.18);
+    border:none;
+    color:#fff;
+    width:36px;height:36px;
+    border-radius:50%;
+    font-size:18px;
+    line-height:1;
+  }
+
+  /* ===== HERO / BRANDING (hanya tampil di Screen 1) ===== */
+  .hero{
+    background:linear-gradient(160deg,var(--primary) 0%,var(--primary-light) 100%);
+    border-radius:16px;
+    padding:20px 16px 16px;
+    text-align:center;
+    color:#fff;
+    margin-bottom:18px;
+    border:2px solid var(--primary-dark);
+  }
+  .hero .crown{font-size:28px;line-height:1;margin-bottom:2px;}
+  .hero .brand-logo{
+    margin:0;
+    font-size:26px;
+    font-weight:800;
+    letter-spacing:1px;
+    color:#fff;
+    -webkit-text-stroke:1px var(--primary-dark);
+    text-shadow:0 2px 0 var(--primary-dark);
+  }
+  .hero .tagline{font-size:12px;opacity:.9;margin-top:4px;letter-spacing:.5px;}
+  .feature-row{display:flex;gap:6px;margin-top:14px;}
+  .feature-chip{
+    flex:1;
+    background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:10px;
+    padding:8px 4px;
+    font-size:10px;
+    font-weight:600;
+  }
+  .feature-chip .ikon{font-size:16px;display:block;margin-bottom:3px;}
+
+  /* ===== PILL LABEL (badge kecil ala "JENIS LAYANAN") ===== */
+  .pill-label{
+    display:inline-block;
+    background:var(--navy);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.5px;
+    padding:6px 14px;
+    border-radius:999px;
+    margin-bottom:10px;
+  }
+  /* ===== KONTEN & LAYAR (screen) ===== */
+  .screen{display:none;padding:16px;flex:1;}
+  .screen.active{display:block;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600;}
+  input[type="text"],input[type="date"],input[type="number"],textarea{
+    width:100%;
+    padding:12px;
+    font-size:16px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    background:#fff;
+    color:var(--text);
+  }
+  textarea{resize:vertical;min-height:60px;}
+  /* Tombol utama besar, touch-friendly (min tinggi 48px) */
+  .btn-primary{
+    width:100%;
+    min-height:52px;
+    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+    color:#fff;
+    border:none;
+    border-radius:999px;
+    font-size:16px;
+    font-weight:700;
+    margin-top:6px;
+    letter-spacing:.3px;
+  }
+  .btn-primary:active{background:var(--primary-dark);}
+  .btn-secondary{
+    width:100%;
+    min-height:48px;
+    background:#fff;
+    color:var(--primary);
+    border:2px solid var(--primary);
+    border-radius:999px;
+    font-size:15px;
+    font-weight:700;
+    margin-top:8px;
+  }
+  .btn-link-small{
+    background:none;
+    border:1px dashed var(--primary);
+    color:var(--primary);
+    padding:10px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:600;
+    width:100%;
+    margin-top:10px;
+  }
+  /* ===== GRID LAYANAN (kartu, bukan dropdown) ===== */
+  .grid-layanan{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+  }
+  .kartu-layanan{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:14px;
+    padding:14px 10px;
+    text-align:center;
+    min-height:96px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    position:relative;
+  }
+  .kartu-layanan:active{border-color:var(--primary);background:var(--mint);}
+  .kartu-layanan.dipilih{border-color:var(--primary);background:var(--mint);}
+  .kartu-layanan.dipilih::after{
+    content:"\2713";
+    position:absolute;
+    top:6px; right:8px;
+    width:18px;height:18px;
+    background:var(--primary);
+    color:#fff;
+    border-radius:50%;
+    font-size:11px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  
+  .kartu-layanan .nama{font-weight:700;font-size:14px;}
+  .kartu-layanan .harga{font-size:11.5px;color:var(--muted);}
+  .btn-primary:disabled{background:var(--border);color:var(--muted);}
+
+  /* ===== BARIS INPUT DINAMIS PER LAYANAN (Screen 3) ===== */
+  .item-input-row{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:10px;
+  }
+  .item-input-row .item-info{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .item-input-row .item-ikon{font-size:18px;}
+  .item-input-row .item-nama{font-weight:700;font-size:14px;flex:1;}
+  .item-input-row .item-harga{font-size:11.5px;color:var(--muted);}
+  .item-input-row .item-field label{font-size:12px;color:var(--muted);margin-bottom:4px;display:block;font-weight:600;}
+
+  /* ===== TOGGLE TIPE DISKON (Rp / %) ===== */
+  .diskon-row{display:flex;gap:8px;align-items:stretch;}
+  .diskon-row input{flex:1;min-width:0;}
+  .diskon-tipe-toggle{display:flex;flex:0 0 auto;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .diskon-tipe-toggle button{
+    width:44px;
+    border:none;
+    background:#fff;
+    color:var(--muted);
+    font-weight:700;
+    font-size:14px;
+  }
+  .diskon-tipe-toggle button:first-child{border-right:1px solid var(--border);}
+  .diskon-tipe-toggle button.aktif{background:var(--primary);color:#fff;}
+
+  /* ===== PANEL KELOLA LAYANAN (CRUD) ===== */
+  .panel-kelola{
+    display:none;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-left:4px solid var(--navy);
+    border-radius:var(--radius);
+    padding:14px;
+    margin-top:12px;
+  }
+  .panel-kelola.active{display:block;}
+  .baris-2{display:flex;gap:8px;}
+  .baris-2 .field{flex:1;}
+  .item-kelola{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+    font-size:14px;
+  }
+  .item-kelola:last-child{border-bottom:none;}
+  .aksi-kecil{display:flex;gap:6px;}
+  .aksi-kecil button{
+    border:none;
+    background:var(--border);
+    padding:6px 10px;
+    border-radius:6px;
+    font-size:12px;
+  }
+  .aksi-kecil .hapus{background:var(--danger-bg);color:var(--danger);}
+
+  /* ===== RINGKASAN & TOGGLE STATUS BAYAR ===== */
+  .ringkasan-box{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-left:4px solid var(--primary);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    margin-bottom:14px;
+  }
+  .ringkasan-box .nama-pelanggan{font-size:17px;font-weight:700;}
+  .ringkasan-box .layanan-terpilih{font-size:14px;color:var(--muted);margin-top:2px;}
+  .toggle-status{display:flex;gap:10px;}
+  .toggle-status button{
+    flex:1;
+    min-height:50px;
+    border-radius:999px;
+    border:2px solid var(--border);
+    background:#fff;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.3px;
+    color:var(--muted);
+  }
+  .toggle-status button.aktif-lunas{border-color:var(--success);background:var(--success-bg);color:var(--success);}
+  .toggle-status button.aktif-belum{border-color:var(--danger);background:var(--danger-bg);color:var(--danger);}
+
+  .total-box{
+    background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+    color:#fff;
+    border-radius:14px;
+    padding:14px;
+    text-align:center;
+    margin:14px 0;
+    border:2px solid var(--gold);
+  }
+  .total-box .label{font-size:12px;opacity:.9;letter-spacing:.5px;}
+  .total-box .angka{font-size:27px;font-weight:800;margin-top:2px;}
+
+  /* ===== STRUK (Screen 4) ===== */
+  .struk-wrapper{background:var(--bg);padding-bottom:10px;}
+  .struk{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:16px;
+    font-family:"Courier New",Courier,monospace;
+    font-size:13px;
+    color:#000;
+  }
+  .struk .judul{text-align:center;font-size:16px;font-weight:700;letter-spacing:1px;}
+  .struk .sub{text-align:center;font-size:11px;color:#444;margin-bottom:6px;}
+  .struk hr{border:none;border-top:1px dashed #999;margin:8px 0;}
+  .struk .nama-besar{font-size:16px;font-weight:700;margin:6px 0;}
+  .struk .baris{display:flex;justify-content:space-between;padding:2px 0;}
+  .struk .baris span:first-child{color:#444;}
+  .struk .catatan-box{margin-top:4px;font-size:12px;}
+  .struk .total-baris{font-size:15px;font-weight:700;margin-top:6px;}
+  .struk .status-lunas{color:#16a34a;font-weight:700;}
+  .struk .status-belum{color:#dc2626;font-weight:700;}
+  .aksi-struk{display:flex;gap:8px;margin-top:14px;}
+  .aksi-struk button{flex:1;}
+
+  /* ===== CETAK: hanya area struk yang tampil ===== */
+  @media print{
+    body *{visibility:hidden;}
+    .struk, .struk *{visibility:visible;}
+    .struk{
+      position:absolute;
+      left:0; top:0;
+      width:100%;
+      border:none;
+      margin:0;
+      padding:8px;
+    }
+    @page{margin:0;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== HEADER ===================== -->
+  <div class="topbar">
+    <button class="btn-back" id="btnBack" style="visibility:hidden;">&#8592;</button>
+    <h1 id="judulLayar">Data Pesanan</h1>
+  </div>
+
+  <!-- ===================== SCREEN 1: DATA PESANAN ===================== -->
+  <section class="screen active" id="screen1">
+    <!-- Hero branding, terinspirasi poster Raja Laundry -->
+    <div class="hero">
+      <div class="crown">&#128081;</div>
+      <h2 class="brand-logo">RAJA LAUNDRY</h2>
+    </div>
+
+    <div class="pill-label">DATA PESANAN</div>
+    <div class="field">
+      <label>Nama Pelanggan</label>
+      <input type="text" id="inputNama" placeholder="Contoh: Budi Santoso">
+    </div>
+    <div class="field">
+      <label>Tanggal Masuk</label>
+      <input type="date" id="inputTglMasuk">
+    </div>
+    <div class="field">
+      <label>Estimasi Selesai</label>
+      <input type="date" id="inputEstSelesai">
+    </div>
+    <button class="btn-primary" id="btnLanjut1">Lanjut</button>
+  </section>
+
+  <!-- ===================== SCREEN 2: PILIH LAYANAN ===================== -->
+  <section class="screen" id="screen2">
+    <div class="pill-label">JENIS LAYANAN (bisa pilih lebih dari satu)</div>
+    <div id="gridLayanan" class="grid-layanan"></div>
+    <button class="btn-primary" id="btnLanjut2" disabled>Lanjut (0 Layanan Dipilih)</button>
+    <button class="btn-link-small" id="btnTogglePanel">+ Tambah / Kelola Layanan</button>
+
+    <!-- Panel CRUD layanan -->
+    <div class="panel-kelola" id="panelKelola">
+      <div class="pill-label">KELOLA LAYANAN</div>
+      <div class="field">
+        <label>Nama Layanan</label>
+        <input type="text" id="inputNamaLayanan" placeholder="Contoh: Cuci Setrika">
+      </div>
+      <div class="baris-2">
+        <div class="field">
+          <label>Harga (Rp)</label>
+          <input type="number" id="inputHargaLayanan" placeholder="7000">
+        </div>
+        <div class="field">
+          <label>Tipe Hitungan</label>
+          <select id="selectSatuanLayanan" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:16px;">
+            <option value="kg">Per Kg</option>
+            <option value="pcs">Per Pcs</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" id="btnSimpanLayanan">Simpan Layanan</button>
+
+      <div id="listLayananKelola" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+  <!-- ===================== SCREEN 3: KALKULASI & DETAIL ===================== -->
+  <section class="screen" id="screen3">
+    <div class="pill-label">DETAIL &amp; KALKULASI</div>
+    <div class="ringkasan-box">
+      <div class="nama-pelanggan" id="ringkasanNama">-</div>
+      <div class="layanan-terpilih" id="ringkasanLayanan">-</div>
+    </div>
+
+    <!-- Input berat/jumlah dirender dinamis sesuai layanan yang dipilih -->
+    <div id="itemInputs"></div>
+
+    <div class="field">
+      <label>Diskon</label>
+      <div class="diskon-row">
+        <input type="number" min="0" id="inputDiskon" placeholder="0">
+        <div class="diskon-tipe-toggle">
+          <button type="button" id="btnDiskonRp" class="aktif" data-tipe="rp">Rp</button>
+          <button type="button" id="btnDiskonPersen" data-tipe="persen">%</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Catatan Khusus (opsional)</label>
+      <textarea id="inputCatatan" placeholder="Contoh: Jangan pakai pewangi"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Status Pembayaran</label>
+      <div class="toggle-status">
+        <button type="button" id="btnLunas">LUNAS</button>
+        <button type="button" id="btnBelumLunas">BELUM LUNAS</button>
+      </div>
+    </div>
+
+    <div class="total-box">
+      <div class="label">Total Harga</div>
+      <div class="angka" id="totalHargaText">Rp 0</div>
+    </div>
+
+    <button class="btn-primary" id="btnBuatStruk">Buat Struk</button>
+  </section>
+
+  <!-- ===================== SCREEN 4: STRUK & AKSI ===================== -->
+  <section class="screen" id="screen4">
+    <div class="pill-label">STRUK PEMBAYARAN</div>
+    <div class="struk-wrapper">
+      <div class="struk" id="strukArea">
+        <div class="judul">RAJA LAUNDRY</div>
+        <div class="sub" id="strukNomorNota">No. -</div>
+        <hr>
+        <div class="nama-besar" id="strukNama">-</div>
+        <div class="baris"><span>Tgl Masuk</span><span id="strukTglMasuk">-</span></div>
+        <div class="baris"><span>Est. Selesai</span><span id="strukEstSelesai">-</span></div>
+        <hr>
+        <!-- Rincian tiap layanan dirender dinamis oleh JS -->
+        <div id="strukItems"></div>
+        <div class="catatan-box" id="strukCatatanWrap">
+          <span>Catatan:</span> <span id="strukCatatan">-</span>
+        </div>
+        <hr>
+        <div class="baris" id="strukSubtotalRow" style="display:none;"><span>Subtotal</span><span id="strukSubtotal">Rp 0</span></div>
+        <div class="baris" id="strukDiskonRow" style="display:none;"><span>Diskon</span><span id="strukDiskon">-Rp 0</span></div>
+        <div class="baris total-baris"><span>TOTAL</span><span id="strukTotal">Rp 0</span></div>
+        <div class="baris"><span>Status</span><span id="strukStatus">-</span></div>
+        <div class="sub" style="margin-top:8px;">Terima kasih telah menggunakan jasa RAJA LAUNDRY 🙏</div>
+      </div>
+    </div>
+
+    <div class="aksi-struk">
+      <button class="btn-primary" id="btnPrint">Print</button>
+      <button class="btn-secondary" id="btnSimpanGambar">Simpan Gambar</button>
+    </div>
+    <button class="btn-link-small" id="btnPesananBaru">+ Buat Pesanan Baru</button>
+  </section>
+
+</div>
+
+<!-- html2canvas hanya dimuat untuk fitur Simpan Gambar -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+/* =========================================================
+   STATE APLIKASI
+   ========================================================= */
+var currentOrder = {
+  nama: "", tglMasuk: "", estSelesai: "",
+  items: [],       // {id, nama, harga, satuan, jumlah, subtotal} - hasil kalkulasi tiap layanan
+  diskonTipe: "rp", // "rp" (nominal) atau "persen"
+  diskonNilai: 0,   // angka yang diketik kasir (apa adanya)
+  diskon: 0,        // hasil potongan dalam Rupiah (setelah dihitung dari persen kalau perlu)
+  subtotal: 0,
+  total: 0,
+  catatan: "", status: "lunas"
+};
+var selectedLayananIds = []; // id layanan yang sedang dipilih di Screen 2 (multi-select)
+var editingServiceId = null; // dipakai saat mode edit layanan
+
+/* =========================================================
+   NAVIGASI ANTAR LAYAR (tanpa reload halaman)
+   ========================================================= */
+var judulPerLayar = {
+  1:"\uD83D\uDC51 Raja Laundry",
+  2:"Pilih Layanan",
+  3:"Detail & Kalkulasi",
+  4:"Struk Pesanan"
+};
+
+function showScreen(no){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById("screen"+no).classList.add("active");
+  document.getElementById("judulLayar").textContent = judulPerLayar[no];
+  document.getElementById("btnBack").style.visibility = (no === 1) ? "hidden" : "visible";
+  document.getElementById("btnBack").setAttribute("data-target", no-1);
+}
+
+document.getElementById("btnBack").addEventListener("click", function(){
+  var target = this.getAttribute("data-target");
+  if(target) showScreen(target);
+});
+
+/* =========================================================
+   SCREEN 1: DATA PESANAN
+   ========================================================= */
+(function initTanggalDefault(){
+  var today = new Date().toISOString().slice(0,10);
+  document.getElementById("inputTglMasuk").value = today;
+})();
+
+document.getElementById("btnLanjut1").addEventListener("click", function(){
+  var nama = document.getElementById("inputNama").value.trim();
+  var tglMasuk = document.getElementById("inputTglMasuk").value;
+  var estSelesai = document.getElementById("inputEstSelesai").value;
+
+  if(!nama || !tglMasuk || !estSelesai){
+    alert("Mohon lengkapi Nama, Tanggal Masuk, dan Estimasi Selesai.");
+    return;
+  }
+  currentOrder.nama = nama;
+  currentOrder.tglMasuk = tglMasuk;
+  currentOrder.estSelesai = estSelesai;
+  renderLayanan();
+  updateBtnLanjut2();
+  showScreen(2);
+});
+
+/* =========================================================
+   DATA LAYANAN (CRUD via localStorage)
+   ========================================================= */
+var KEY_LAYANAN = "rl_layanan";
+
+function loadLayanan(){
+  var data = localStorage.getItem(KEY_LAYANAN);
+  if(data) return JSON.parse(data);
+  // Data awal contoh, dibuat sekali saja
+  var contoh = [
+    { id: 1, nama:"Cuci Kering", harga:5000, satuan:"kg" },
+    { id: 2, nama:"Cuci Setrika", harga:7000, satuan:"kg" },
+    { id: 3, nama:"Setrika Saja", harga:3000, satuan:"kg" },
+    { id: 4, nama:"Cuci Sepatu", harga:15000, satuan:"pcs" }
+  ];
+  localStorage.setItem(KEY_LAYANAN, JSON.stringify(contoh));
+  return contoh;
+}
+function saveLayanan(arr){
+  localStorage.setItem(KEY_LAYANAN, JSON.stringify(arr));
+}
+function formatRupiah(angka){
+  return "Rp " + Number(angka || 0).toLocaleString("id-ID");
+}
+
+/* Pilih ikon emoji sesuai kata kunci nama layanan (ringan, tanpa aset gambar) */
+function pilihIkonLayanan(nama){
+  var n = nama.toLowerCase();
+  if(n.indexOf("kering") > -1) return "\uD83C\uDF00";      // cuci kering
+  if(n.indexOf("setrika") > -1) return "\uD83D\uDC55";      // baju/setrika
+  if(n.indexOf("sepatu") > -1) return "\uD83D\uDC5F";        // sepatu
+  if(n.indexOf("bed") > -1 || n.indexOf("selimut") > -1 || n.indexOf("cover") > -1) return "\uD83D\uDECF\uFE0F"; // bed cover
+  if(n.indexOf("handuk") > -1) return "\uD83E\uDDFB";        // handuk
+  if(n.indexOf("boneka") > -1) return "\uD83E\uDDF8";        // boneka
+  if(n.indexOf("karpet") > -1) return "\uD83E\uDDF6";        // karpet/rajut
+  return "\uD83E\uDEFA"; // ikon default: keranjang laundry
+}
+
+/* Render kartu layanan (grid) + list kelola (CRUD) */
+function renderLayanan(){
+  var data = loadLayanan();
+  var grid = document.getElementById("gridLayanan");
+  var listKelola = document.getElementById("listLayananKelola");
+  grid.innerHTML = "";
+  listKelola.innerHTML = "";
+
+  data.forEach(function(item){
+    // Kartu untuk dipilih pelanggan
+    var ikon = pilihIkonLayanan(item.nama);
+    var kartu = document.createElement("button");
+    kartu.type = "button";
+    kartu.className = "kartu-layanan" + (selectedLayananIds.indexOf(item.id) > -1 ? " dipilih" : "");
+    kartu.innerHTML =   '<div class="nama">'+item.nama+'</div>'+
+                        '<div class="harga">'+formatRupiah(item.harga)+' /'+item.satuan+'</div>';
+    kartu.addEventListener("click", function(){ toggleLayanan(item.id); });
+    grid.appendChild(kartu);
+
+    // Baris untuk panel kelola (edit / hapus)
+    var baris = document.createElement("div");
+    baris.className = "item-kelola";
+    baris.innerHTML = '<span>'+ikon+' '+item.nama+' - '+formatRupiah(item.harga)+'/'+item.satuan+'</span>';
+    var aksi = document.createElement("div");
+    aksi.className = "aksi-kecil";
+    var btnEdit = document.createElement("button");
+    btnEdit.textContent = "Edit";
+    btnEdit.addEventListener("click", function(){ isiFormEdit(item); });
+    var btnHapus = document.createElement("button");
+    btnHapus.textContent = "Hapus";
+    btnHapus.className = "hapus";
+    btnHapus.addEventListener("click", function(){ hapusLayanan(item.id); });
+    aksi.appendChild(btnEdit);
+    aksi.appendChild(btnHapus);
+    baris.appendChild(aksi);
+    listKelola.appendChild(baris);
+  });
+}
+
+/* Toggle pilih/batal-pilih satu layanan (multi-select, tidak langsung pindah layar) */
+function toggleLayanan(id){
+  var idx = selectedLayananIds.indexOf(id);
+  if(idx > -1){
+    selectedLayananIds.splice(idx, 1); // batal pilih
+  } else {
+    selectedLayananIds.push(id); // pilih
+  }
+  renderLayanan();       // refresh tampilan kartu (kasih tanda centang)
+  updateBtnLanjut2();
+}
+
+/* Update teks & status tombol "Lanjut (X Layanan Dipilih)" */
+function updateBtnLanjut2(){
+  var btn = document.getElementById("btnLanjut2");
+  var jumlah = selectedLayananIds.length;
+  btn.textContent = "Lanjut (" + jumlah + " Layanan Dipilih)";
+  btn.disabled = (jumlah === 0);
+}
+
+document.getElementById("btnLanjut2").addEventListener("click", function(){
+  if(selectedLayananIds.length === 0) return;
+  document.getElementById("ringkasanNama").textContent = currentOrder.nama;
+  renderItemInputs();
+  showScreen(3);
+});
+
+/* Render satu baris input (Berat/Jumlah) untuk tiap layanan yang dipilih */
+function renderItemInputs(){
+  var data = loadLayanan();
+  var terpilih = data.filter(function(d){ return selectedLayananIds.indexOf(d.id) > -1; });
+  var namaList = terpilih.map(function(d){ return d.nama; }).join(", ");
+  document.getElementById("ringkasanLayanan").textContent = namaList;
+
+  var container = document.getElementById("itemInputs");
+  container.innerHTML = "";
+  terpilih.forEach(function(item){
+    var labelInput = (item.satuan === "kg") ? "Berat (Kg)" : "Jumlah (Pcs)";
+    var stepAttr = (item.satuan === "kg") ? 'step="0.1"' : 'step="1"';
+    var row = document.createElement("div");
+    row.className = "item-input-row";
+    row.innerHTML =
+      '<div class="item-info">' +
+        '<span class="item-ikon">'+pilihIkonLayanan(item.nama)+'</span>' +
+        '<span class="item-nama">'+item.nama+'</span>' +
+        '<span class="item-harga">'+formatRupiah(item.harga)+'/'+item.satuan+'</span>' +
+      '</div>' +
+      '<div class="item-field">' +
+        '<label>'+labelInput+'</label>' +
+        '<input type="number" '+stepAttr+' min="0" class="input-item" data-id="'+item.id+'" placeholder="0">' +
+      '</div>';
+    container.appendChild(row);
+  });
+
+  // pasang event kalkulasi ulang tiap input berubah
+  container.querySelectorAll(".input-item").forEach(function(inp){
+    inp.addEventListener("input", hitungTotal);
+  });
+
+  hitungTotal(); // hitung total awal (0) saat layar dibuka
+}
+
+/* Toggle panel tambah/kelola layanan */
+document.getElementById("btnTogglePanel").addEventListener("click", function(){
+  document.getElementById("panelKelola").classList.toggle("active");
+});
+
+/* Simpan layanan baru ATAU update layanan yang sedang diedit */
+document.getElementById("btnSimpanLayanan").addEventListener("click", function(){
+  var nama = document.getElementById("inputNamaLayanan").value.trim();
+  var harga = parseFloat(document.getElementById("inputHargaLayanan").value);
+  var satuan = document.getElementById("selectSatuanLayanan").value;
+
+  if(!nama || !harga){
+    alert("Nama dan harga layanan wajib diisi.");
+    return;
+  }
+
+  var data = loadLayanan();
+  if(editingServiceId){
+    var idx = data.findIndex(function(d){ return d.id === editingServiceId; });
+    if(idx > -1){ data[idx].nama = nama; data[idx].harga = harga; data[idx].satuan = satuan; }
+    editingServiceId = null;
+    this.textContent = "Simpan Layanan";
+  } else {
+    var newId = Date.now(); // id unik ringan tanpa perlu library
+    data.push({ id:newId, nama:nama, harga:harga, satuan:satuan });
+  }
+  saveLayanan(data);
+  renderLayanan();
+
+  // reset form
+  document.getElementById("inputNamaLayanan").value = "";
+  document.getElementById("inputHargaLayanan").value = "";
+});
+
+function isiFormEdit(item){
+  document.getElementById("inputNamaLayanan").value = item.nama;
+  document.getElementById("inputHargaLayanan").value = item.harga;
+  document.getElementById("selectSatuanLayanan").value = item.satuan;
+  editingServiceId = item.id;
+  document.getElementById("btnSimpanLayanan").textContent = "Update Layanan";
+  document.getElementById("panelKelola").classList.add("active");
+}
+
+function hapusLayanan(id){
+  if(!confirm("Hapus layanan ini?")) return;
+  var data = loadLayanan().filter(function(d){ return d.id !== id; });
+  saveLayanan(data);
+  // buang dari daftar terpilih juga, kalau kebetulan sedang dipilih
+  var idx = selectedLayananIds.indexOf(id);
+  if(idx > -1) selectedLayananIds.splice(idx, 1);
+  renderLayanan();
+  updateBtnLanjut2();
+}
+
+/* =========================================================
+   SCREEN 3: KALKULASI TOTAL (multi-item) & STATUS BAYAR
+   ========================================================= */
+function hitungTotal(){
+  var data = loadLayanan();
+  var subtotal = 0;
+  var items = [];
+
+  // Loop tiap input item yang sedang ditampilkan, jumlahkan subtotalnya
+  document.querySelectorAll("#itemInputs .input-item").forEach(function(inp){
+    var id = Number(inp.getAttribute("data-id"));
+    var layanan = data.find(function(d){ return d.id === id; });
+    if(!layanan) return;
+    var jumlah = parseFloat(inp.value) || 0;
+    var itemSubtotal = jumlah * layanan.harga;
+    subtotal += itemSubtotal;
+    items.push({ id:id, nama:layanan.nama, harga:layanan.harga, satuan:layanan.satuan, jumlah:jumlah, subtotal:itemSubtotal });
+  });
+
+  // Diskon bisa berupa nominal (Rp) atau persen dari subtotal
+  var diskonNilai = parseFloat(document.getElementById("inputDiskon").value) || 0;
+  var diskonRupiah = 0;
+  if(currentOrder.diskonTipe === "persen"){
+    var persen = Math.min(diskonNilai, 100); // batas maksimal 100%
+    diskonRupiah = subtotal * (persen / 100);
+  } else {
+    diskonRupiah = diskonNilai;
+  }
+  if(diskonRupiah > subtotal) diskonRupiah = subtotal; // diskon tidak boleh melebihi subtotal
+
+  var total = subtotal - diskonRupiah;
+  if(total < 0) total = 0;
+
+  currentOrder.items = items;
+  currentOrder.subtotal = subtotal;
+  currentOrder.diskonNilai = diskonNilai;
+  currentOrder.diskon = diskonRupiah;
+  currentOrder.total = total;
+
+  document.getElementById("totalHargaText").textContent = formatRupiah(total);
+}
+document.getElementById("inputDiskon").addEventListener("input", hitungTotal);
+
+/* Toggle tipe diskon: Rp (nominal) atau % (persen dari subtotal) */
+function setDiskonTipe(tipe){
+  currentOrder.diskonTipe = tipe;
+  document.getElementById("btnDiskonRp").classList.toggle("aktif", tipe === "rp");
+  document.getElementById("btnDiskonPersen").classList.toggle("aktif", tipe === "persen");
+  document.getElementById("inputDiskon").placeholder = (tipe === "persen") ? "0 (%)" : "0";
+  hitungTotal(); // hitung ulang begitu tipe diganti
+}
+document.getElementById("btnDiskonRp").addEventListener("click", function(){ setDiskonTipe("rp"); });
+document.getElementById("btnDiskonPersen").addEventListener("click", function(){ setDiskonTipe("persen"); });
+
+/* Toggle status bayar bergaya tombol kotak */
+function setStatus(status){
+  currentOrder.status = status;
+  var btnLunas = document.getElementById("btnLunas");
+  var btnBelum = document.getElementById("btnBelumLunas");
+  btnLunas.classList.toggle("aktif-lunas", status === "lunas");
+  btnBelum.classList.toggle("aktif-belum", status === "belum");
+}
+document.getElementById("btnLunas").addEventListener("click", function(){ setStatus("lunas"); });
+document.getElementById("btnBelumLunas").addEventListener("click", function(){ setStatus("belum"); });
+setStatus("lunas"); // default awal
+
+document.getElementById("btnBuatStruk").addEventListener("click", function(){
+  if(currentOrder.items.length === 0){ alert("Pilih layanan terlebih dahulu."); return; }
+
+  // Pastikan tiap layanan yang dipilih sudah diisi berat/jumlahnya
+  var adaKosong = currentOrder.items.some(function(it){ return !it.jumlah || it.jumlah <= 0; });
+  if(adaKosong){
+    alert("Isi Berat (Kg) atau Jumlah (Pcs) untuk setiap layanan yang dipilih.");
+    return;
+  }
+
+  currentOrder.catatan = document.getElementById("inputCatatan").value.trim();
+  buatStruk();
+});
+
+/* =========================================================
+   NOMOR NOTA: format DDMM-XXX, XXX reset tiap bulan
+   ========================================================= */
+var KEY_COUNTER = "rl_nota_counter";
+
+function generateNomorNota(){
+  var now = new Date();
+  var bulanIni = now.getFullYear() + "-" + (now.getMonth()+1); // kunci bulan untuk reset
+  var counterData = JSON.parse(localStorage.getItem(KEY_COUNTER) || "null");
+
+  if(!counterData || counterData.bulan !== bulanIni){
+    counterData = { bulan: bulanIni, urut: 1 };
+  } else {
+    counterData.urut += 1;
+  }
+  localStorage.setItem(KEY_COUNTER, JSON.stringify(counterData));
+
+  var dd = String(now.getDate()).padStart(2,"0");
+  var mm = String(now.getMonth()+1).padStart(2,"0");
+  var urut = String(counterData.urut).padStart(3,"0");
+  return dd + mm + "-" + urut;
+}
+
+/* =========================================================
+   SCREEN 4: BANGUN STRUK
+   ========================================================= */
+function formatTanggal(str){
+  if(!str) return "-";
+  var d = new Date(str + "T00:00:00");
+  return d.toLocaleDateString("id-ID", { day:"2-digit", month:"short", year:"numeric" });
+}
+
+function buatStruk(){
+  var nomorNota = generateNomorNota();
+
+  document.getElementById("strukNomorNota").textContent = "No. " + nomorNota;
+  document.getElementById("strukNama").textContent = currentOrder.nama;
+  document.getElementById("strukTglMasuk").textContent = formatTanggal(currentOrder.tglMasuk);
+  document.getElementById("strukEstSelesai").textContent = formatTanggal(currentOrder.estSelesai);
+
+  // Rincian tiap layanan: "Cuci Kering - 3 Kg - Rp21.000"
+  var elItems = document.getElementById("strukItems");
+  elItems.innerHTML = "";
+  currentOrder.items.forEach(function(it){
+    var satuanLabel = (it.satuan === "kg") ? "Kg" : "Pcs";
+    var baris = document.createElement("div");
+    baris.className = "baris";
+    baris.innerHTML = "<span>"+it.nama+" - "+it.jumlah+" "+satuanLabel+"</span><span>"+formatRupiah(it.subtotal)+"</span>";
+    elItems.appendChild(baris);
+  });
+
+  document.getElementById("strukCatatan").textContent = currentOrder.catatan || "-";
+
+  // Baris subtotal & diskon hanya tampil jika ada diskon
+  var adaDiskon = currentOrder.diskon > 0;
+  document.getElementById("strukSubtotalRow").style.display = adaDiskon ? "flex" : "none";
+  document.getElementById("strukDiskonRow").style.display = adaDiskon ? "flex" : "none";
+  if(adaDiskon){
+    document.getElementById("strukSubtotal").textContent = formatRupiah(currentOrder.subtotal);
+    var labelDiskon = (currentOrder.diskonTipe === "persen")
+      ? "Diskon (" + currentOrder.diskonNilai + "%)"
+      : "Diskon";
+    document.getElementById("strukDiskonRow").querySelector("span:first-child").textContent = labelDiskon;
+    document.getElementById("strukDiskon").textContent = "-" + formatRupiah(currentOrder.diskon);
+  }
+  document.getElementById("strukTotal").textContent = formatRupiah(currentOrder.total);
+
+  var elStatus = document.getElementById("strukStatus");
+  if(currentOrder.status === "lunas"){
+    elStatus.textContent = "LUNAS";
+    elStatus.className = "status-lunas";
+  } else {
+    elStatus.textContent = "BELUM LUNAS";
+    elStatus.className = "status-belum";
+  }
+
+  showScreen(4);
+}
+
+/* Tombol Print: hanya area .struk yang tercetak (lihat CSS @media print) */
+document.getElementById("btnPrint").addEventListener("click", function(){
+  window.print();
+});
+
+/* Tombol Simpan Gambar: pakai html2canvas untuk export PNG */
+document.getElementById("btnSimpanGambar").addEventListener("click", function(){
+  var target = document.getElementById("strukArea");
+  html2canvas(target, { scale:2, backgroundColor:"#ffffff" }).then(function(canvas){
+    var link = document.createElement("a");
+    link.download = "struk-" + currentOrder.nama.replace(/\s+/g,"_") + ".png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+});
+
+/* Tombol Buat Pesanan Baru: reset form pesanan, layanan tetap tersimpan */
+document.getElementById("btnPesananBaru").addEventListener("click", function(){
+  document.getElementById("inputNama").value = "";
+  document.getElementById("inputEstSelesai").value = "";
+  document.getElementById("inputCatatan").value = "";
+  document.getElementById("inputDiskon").value = "";
+  document.getElementById("itemInputs").innerHTML = "";
+  selectedLayananIds = []; // reset pilihan layanan untuk pesanan baru
+  currentOrder = { nama:"", tglMasuk:"", estSelesai:"", items:[], diskonTipe:"rp", diskonNilai:0, diskon:0, subtotal:0, total:0, catatan:"", status:"lunas" };
+  setDiskonTipe("rp"); // kembalikan toggle diskon ke Rp
+  setStatus("lunas");
+  showScreen(1);
+});
+
+/* Inisialisasi awal */
+renderLayanan();
+</script>
+</body>
+</html>
